@@ -314,7 +314,7 @@ if (!empty($_REQUEST['bill_number'])) {
                                         <!-- Total Profit: Separate Row -->
                                         <tr>
                                             <td colspan="6" class="text-right table-bordered font-weight-bold">Total Profit:</td>
-                                            <td class="table-bordered font-weight-bold" id="total_profit_amount"><?= number_format($total_profit, 2) ?></td>
+                                            <td class="table-bordered font-weight-bold" id="total_profit_amount"><?= $fetchOrder['customer_profit'] ?> </td>
                                         </tr>
 
                                         <!-- Sub Total and Discount -->

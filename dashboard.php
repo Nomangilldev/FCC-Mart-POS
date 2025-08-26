@@ -2,20 +2,20 @@
 <html lang="en">
 <?php include_once 'includes/head.php';
 
-$current_date      = date('Y-m-d');
-$d                 = strtotime("last Day");
-$yesterday_date    = date("Y-m-d", $d);
+$current_date = date('Y-m-d');
+$d = strtotime("last Day");
+$yesterday_date = date("Y-m-d", $d);
 
-$previous_week     = strtotime("-1 week +1 day");
-$start_week        = date("Y-m-d", strtotime("last sunday midnight", $previous_week));
-$end_week          = date("Y-m-d", strtotime("next saturday", strtotime($start_week)));
+$previous_week = strtotime("-1 week +1 day");
+$start_week = date("Y-m-d", strtotime("last sunday midnight", $previous_week));
+$end_week = date("Y-m-d", strtotime("next saturday", strtotime($start_week)));
 
-$d                 = strtotime("today");
-$last_start_week   = date("Y-m-d", strtotime("last sunday midnight", $d));
-$last_end_week     = date("Y-m-d", strtotime("next saturday", strtotime($last_start_week)));
+$d = strtotime("today");
+$last_start_week = date("Y-m-d", strtotime("last sunday midnight", $d));
+$last_end_week = date("Y-m-d", strtotime("next saturday", strtotime($last_start_week)));
 
-$start_of_month    = date('Y-m-01', strtotime($current_date));
-$end_of_month      = date('Y-m-t', strtotime($current_date));
+$start_of_month = date('Y-m-01', strtotime($current_date));
+$end_of_month = date('Y-m-t', strtotime($current_date));
 ?>
 
 
@@ -29,10 +29,10 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
             <div class="row align-items-center mb-2">
               <div class="col">
                 <?php
-                 $user_id = $_SESSION['user_id'];
-                $user = fetchRecord($dbc, 'users', 'user_id', $user_id );
+                $user_id = $_SESSION['user_id'];
+                $user = fetchRecord($dbc, 'users', 'user_id', $user_id);
                 ?>
-                
+
                 <h2 class="h5 page-title">Welcome! <span class="text-primary"><?= $user['username'] ?></span></h2>
               </div>
               <div class="col-auto">
@@ -44,8 +44,10 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                     </div>
                   </div>
                   <div class="form-group">
-                    <button type="button" class="btn btn-sm"><span class="fe fe-refresh-ccw fe-16 text-muted"></span></button>
-                    <button type="button" class="btn btn-sm mr-2"><span class="fe fe-filter fe-16 text-muted"></span></button>
+                    <button type="button" class="btn btn-sm"><span
+                        class="fe fe-refresh-ccw fe-16 text-muted"></span></button>
+                    <button type="button" class="btn btn-sm mr-2"><span
+                        class="fe fe-filter fe-16 text-muted"></span></button>
                   </div>
                 </form>
               </div>
@@ -66,7 +68,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                           <?php
                           $user_id = $_SESSION['user_id'];
                           $user_role = $_SESSION['user_role']; // e.g., 'admin' or 'cashier'
-
+                          
                           if ($user_role === 'cashier') {
                             $query = "
                                 SELECT SUM(grand_total) as total_sales
@@ -312,7 +314,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                           <?php
                           @$total_orders = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(*) as total_orders FROM purchase WHERE purchase_date BETWEEN '$start_of_month' AND '$end_of_month' "))['total_orders'];
                           $total = isset($total_orders) ? $total_orders : "0";
-                          echo   $total = ($fetchedUserRole == "admin") ? $total : "0";
+                          echo $total = ($fetchedUserRole == "admin") ? $total : "0";
                           ?>
                         </span>
                       </div>
@@ -322,6 +324,157 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
               </div>
             </div>
             <!-- Second row end  -->
+
+            <div class="row">
+              <div class="col-md-6 col-xl-6 mb-4">
+                <div class="card shadow bg-primary text-white border-0">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-white">
+                          <i class="fe fe-16 fe-shopping-bag text-default mb-0"></i>
+                        </span>
+                      </div>
+                      <div class="col pr-0">
+                        <p class="small text-white mb-0">Today Sales Return</p>
+                        <span class="h3 mb-0 text-white">
+                          <?php
+                          $user_id = $_SESSION['user_id'];
+                          $user_role = $_SESSION['user_role']; // e.g., 'admin' or 'cashier'
+                          
+                          if ($user_role === 'cashier') {
+                            $query = "
+                                SELECT SUM(refund_amount) as total_sales_return
+                                FROM returns
+                                WHERE return_date = '$current_date' AND user_id = '$user_id'
+                            ";
+                          } else {
+                            // For admin or other roles, show all sales
+                            $query = "
+                                SELECT SUM(grand_total) as total_sales_return
+                                FROM returns
+                                WHERE return_date = '$current_date'
+                            ";
+                          }
+
+                          $result = mysqli_query($dbc, $query);
+                          $row = mysqli_fetch_assoc($result);
+                          $total_sales_return = $row['total_sales_return'];
+                          $total_return = isset($total_sales_return) ? $total_sales_return : 0;
+
+                          echo "<span class='h3 mb-0 text-white'>" . number_format($total_return) . "</span>";
+                          ?>
+                        </span>
+                        <!--   <span class="small text-white">+5.5%</span> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-xl-6 mb-4">
+                <div class="card shadow border-0">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-primary">
+                          <i class="fe fe-16 fe-shopping-cart text-white mb-0"></i>
+                        </span>
+                      </div>
+                      <div class="col pr-0">
+                        <p class="small text-muted mb-0">Today Orders Return</p>
+                        <span class="h3 mb-0">
+                          <?php
+                          if ($user_role === 'cashier') {
+                            $query = "
+                              SELECT COUNT(*) AS total_orders_return
+                              FROM returns
+                              WHERE return_date = '$current_date' AND user_id = '$user_id'
+                            ";
+                          } else {
+                            // For admin or other roles, show all sales
+                            $query = "
+                              SELECT COUNT(*) AS total_orders_return
+                              FROM returns
+                              WHERE return_date = '$current_date`'
+                            ";
+                          }
+                          $result = mysqli_query($dbc, $query);
+                          $row = mysqli_fetch_assoc($result);
+                          $total_orders_return = isset($row['total_orders_return']) ? $row['total_orders_return'] : 0;
+                          echo $total_orders_return;
+                          ?>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow border-0">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-primary">
+                          <i class="fe fe-16 fe-dollar-sign text-white mb-0"></i>
+                        </span>
+                      </div>
+                      <div class="col">
+                        <p class="small text-muted mb-0">Monthly Sales</p>
+                        <div class="row align-items-center no-gutters">
+                          <div class="col-12">
+                            <span class="h3 mr-2 mb-0">
+                              <?php
+                              if ($user_role === "cashier") {
+                                $query = "SELECT SUM(grand_total) as total_sales FROM orders WHERE user_id = '$user_id' AND order_date BETWEEN '$start_of_month' AND '$end_of_month'";
+                              } else {
+                                $query = "SELECT SUM(grand_total) as total_sales FROM orders WHERE order_date BETWEEN '$start_of_month' AND '$end_of_month'";
+                              }
+
+                              $total_sales = mysqli_fetch_assoc(mysqli_query($dbc, $query))['total_sales'];
+                              $total = isset($total_sales) ? $total_sales : "0";
+
+                              echo number_format($total);
+                              ?>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow border-0">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-primary">
+                          <i class="fe fe-16 fe-activity text-white mb-0"></i>
+                        </span>
+                      </div>
+                      <div class="col">
+                        <p class="small text-muted mb-0">Monthly Orders</p>
+                        <span class="h3 mb-0">
+                          <?php
+                          if ($user_role === "cashier") {
+                            $query = "SELECT COUNT(*) as total_orders FROM orders WHERE user_id = '$user_id' AND order_date BETWEEN '$start_of_month' AND '$end_of_month'";
+                          } else {
+                            $query = "SELECT COUNT(*) as total_orders FROM orders WHERE order_date BETWEEN '$start_of_month' AND '$end_of_month'";
+                          }
+
+                          $total_orders = mysqli_fetch_assoc(mysqli_query($dbc, $query))['total_orders'];
+                          $total = isset($total_orders) ? $total_orders : "0";
+
+                          echo $total;
+                          ?>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+
+            </div><!-- 3rd row end -->
 
             <!-- <div class="row">
               <div class="col-md-6 col-xl-3 mb-4">
@@ -481,17 +634,17 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                         ?>
                         <tr>
                           <td>Orders</td>
-                          <td class="text-center"><?= @(int)$cash_in_hand_sale['cash_in_hand'] ?></td>
-                          <td class="text-center"><?= @(int)$cash_in_hand_sale['cash_in_hand_amount'] ?></td>
-                          <td class="text-center"><?= @(int)$credit_sale['credit_sale'] ?></td>
-                          <td class="text-center"><?= @(int)$credit_sale['credit_sale_amount'] ?></td>
+                          <td class="text-center"><?= @(int) $cash_in_hand_sale['cash_in_hand'] ?></td>
+                          <td class="text-center"><?= @(int) $cash_in_hand_sale['cash_in_hand_amount'] ?></td>
+                          <td class="text-center"><?= @(int) $credit_sale['credit_sale'] ?></td>
+                          <td class="text-center"><?= @(int) $credit_sale['credit_sale_amount'] ?></td>
                         </tr>
                         <tr>
                           <td>Purchases</td>
-                          <td class="text-center"><?= @(int)$cash_in_hand_pur['cash_in_hand'] ?></td>
-                          <td class="text-center"><?= @(int)$cash_in_hand_pur['cash_in_hand_amount'] ?></td>
-                          <td class="text-center"><?= @(int)$credit_pur['credit_sale'] ?></td>
-                          <td class="text-center"><?= @(int)$credit_pur['credit_sale_amount'] ?></td>
+                          <td class="text-center"><?= @(int) $cash_in_hand_pur['cash_in_hand'] ?></td>
+                          <td class="text-center"><?= @(int) $cash_in_hand_pur['cash_in_hand_amount'] ?></td>
+                          <td class="text-center"><?= @(int) $credit_pur['credit_sale'] ?></td>
+                          <td class="text-center"><?= @(int) $credit_pur['credit_sale_amount'] ?></td>
 
                         </tr>
 
@@ -541,9 +694,14 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                         </div>
                         <div class="col-4 text-center mb-3">
                           <p class="mb-1 small text-muted">Profit</p>
-                          <span class="h3"><?= getexpense($dbc, "AND voucher_date='$current_date'") ?></span><br />
-                          <!-- <span class="small text-muted">-2%</span> -->
-                          <!-- <span class="fe fe-arrow-down text-danger fe-12"></span> -->
+                          <span class="h3">
+                            <?php
+                            @$total_profit = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(customer_profit) as total_profit FROM orders where order_date='$current_date' "))['total_profit'];
+                           echo $total = isset($total_profit) ? number_format($total_profit, 2) : "0";
+
+                            ?>
+                            <!-- <span class="small text-muted">-2%</span> -->
+                            <!-- <span class="fe fe-arrow-down text-danger fe-12"></span> -->
                         </div>
                       </div>
                     <?php endif; ?>
@@ -567,17 +725,17 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                         ?>
                         <tr>
                           <td>Orders</td>
-                          <td class="text-center"><?= @(int)$cash_in_hand_sale['cash_in_hand'] ?></td>
-                          <td class="text-center"><?= @(int)$cash_in_hand_sale['cash_in_hand_amount'] ?></td>
-                          <td class="text-center"><?= @(int)$credit_sale['credit_sale'] ?></td>
-                          <td class="text-center"><?= @(int)$credit_sale['credit_sale_amount'] ?></td>
+                          <td class="text-center"><?= @(int) $cash_in_hand_sale['cash_in_hand'] ?></td>
+                          <td class="text-center"><?= @(int) $cash_in_hand_sale['cash_in_hand_amount'] ?></td>
+                          <td class="text-center"><?= @(int) $credit_sale['credit_sale'] ?></td>
+                          <td class="text-center"><?= @(int) $credit_sale['credit_sale_amount'] ?></td>
                         </tr>
                         <tr>
                           <td>Purchases</td>
-                          <td class="text-center"><?= @(int)$cash_in_hand_pur['cash_in_hand'] ?></td>
-                          <td class="text-center"><?= @(int)$cash_in_hand_pur['cash_in_hand_amount'] ?></td>
-                          <td class="text-center"><?= @(int)$credit_pur['credit_sale'] ?></td>
-                          <td class="text-center"><?= @(int)$credit_pur['credit_sale_amount'] ?></td>
+                          <td class="text-center"><?= @(int) $cash_in_hand_pur['cash_in_hand'] ?></td>
+                          <td class="text-center"><?= @(int) $cash_in_hand_pur['cash_in_hand_amount'] ?></td>
+                          <td class="text-center"><?= @(int) $credit_pur['credit_sale'] ?></td>
+                          <td class="text-center"><?= @(int) $credit_pur['credit_sale_amount'] ?></td>
 
                         </tr>
 
@@ -593,6 +751,86 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                           </td>
                         </tr>
                       </tfoot>
+                    </table>
+                  </div>
+                </div>
+
+
+
+
+                <div class="card shadow mb-4">
+                  <div class="card-header">
+                    <strong>Cashiers</strong>
+                  </div>
+                  <div class="card-body px-4">
+                    <table class="table table-bordered mb-1 mx-n1 table-sm">
+                      <thead>
+                        <tr>
+                          <th class="">cashier</th>
+                          <!-- <th class="text-right">Today Balance</th> -->
+                          <th class="text-right">Today Sale</th>
+                          <th class="text-right">Today Orders</th>
+                          <th class="text-right">Today Return</th>
+                          <th class="text-right">Today Profit</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                        $user_id = $_SESSION['user_id'];
+                        $user_role = $_SESSION['user_role'];
+
+                        if ($user_role === 'admin') {
+                          $cashiers = mysqli_query($dbc, "SELECT * FROM users WHERE user_role = 'cashier'");
+                        } else {
+                          $cashiers = mysqli_query($dbc, "SELECT * FROM users WHERE user_role = 'cashier' AND user_id = '$user_id'");
+                        }
+
+                        while ($cashier = mysqli_fetch_assoc($cashiers)) {
+                          $uid = $cashier['user_id'];
+                          $name = ucwords($cashier['username']);
+
+                          // Fetch today's order data
+                          $ordersQ = mysqli_query($dbc, "
+                                                                        SELECT COUNT(*) AS total_orders, 
+                                                                              SUM(grand_total) AS total_sale,
+                                                                              SUM(customer_profit) AS profit
+                                                                        FROM orders 
+                                                                        WHERE user_id = '$uid' AND order_date = '$current_date'
+                                                                      ");
+                          $orders = mysqli_fetch_assoc($ordersQ);
+
+                          // Fetch today's returns data
+                          $returnsQ = mysqli_query($dbc, "
+                                                                        SELECT SUM(refund_amount) AS total_return
+                                                                        FROM returns 
+                                                                        WHERE user_id = '$uid' AND return_date = '$current_date'
+                                                                       ");
+                          $returns = mysqli_fetch_assoc($returnsQ);
+                          ?>
+                          <tr>
+                            <td><?= $name ?></td>
+                            <!-- <td></td> -->
+                            <td class="text-center"><?= isset($orders['total_sale']) ? $orders['total_sale'] : 0 ?></td>
+                            <td class="text-center"><?= isset($orders['total_orders']) ? $orders['total_orders'] : 0 ?>
+                            </td>
+                            <td class="text-center"><?= isset($returns['total_return']) ? $returns['total_return'] : 0 ?>
+                            </td>
+                            <td class="text-center"><?= isset($orders['profit']) ? $orders['profit'] : 0 ?></td>
+                          </tr>
+                        <?php } ?>
+                      </tbody>
+
+                      <!-- <tfoot>
+                        <tr>
+                          <th>Cash in hand Account</th>
+                          <td style="font-size: 22px;text-align: right;" align="right" colspan="4">
+                            <?php
+                            $qwer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(credit-debit) as TotalCash FROM transactions WHERE customer_id = '2'"));
+                            echo number_format(@$qwer['TotalCash']);
+                            ?>
+                          </td>
+                        </tr>
+                      </tfoot> -->
                     </table>
                   </div>
                 </div>
@@ -664,7 +902,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                         $c++;
                         $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $customer['customer_id'] . "'"));
 
-                      ?>
+                        ?>
                         <div class="list-group-item">
                           <div class="row align-items-center">
                             <div class="col-3 col-md-2">
@@ -676,10 +914,10 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                             </div>
                             <div class="col-auto">
                               <strong><?php if (!empty($from_balance['from_balance'])) {
-                                        echo $from_balance['from_balance'];
-                                      } else {
-                                        echo 0;
-                                      } ?></strong>
+                                echo $from_balance['from_balance'];
+                              } else {
+                                echo 0;
+                              } ?></strong>
 
                             </div>
                           </div>
@@ -740,7 +978,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
 
 
 
-                            ?>
+                              ?>
                               <tr>
 
                                 <td><?= ucwords($r['client_name']) ?> (<?= $r['client_contact'] ?>)</td>
@@ -760,7 +998,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
 
 
                               </tr>
-                            <?php  } ?>
+                            <?php } ?>
 
                           </tbody>
                         </table>
@@ -805,7 +1043,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
 
 
 
-                    ?>
+                      ?>
                       <tr>
                         <td><?= $c ?></td>
                         <td><?= ucwords($r['client_name']) ?></td>
@@ -814,7 +1052,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                         <td><?= $r['grand_total'] ?></td>
                         <td><?= $r['payment_type'] ?></td>
                       </tr>
-                    <?php  } ?>
+                    <?php } ?>
                   </tbody>
                 </table>
               </div>
@@ -843,7 +1081,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                         $c = 0;
                         while ($row = mysqli_fetch_assoc($q)) {
                           $c++;
-                        ?>
+                          ?>
                           <tr>
                             <td><?= $row['order_id'] ?></td>
                             <td><?= $row['client_name'] ?> (<?= $row['client_contact'] ?>)</td>
@@ -851,7 +1089,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                             <td><span class="badge badge-success"><?= $row['paid'] ?></span> </td>
                             <td><span class="badge badge-danger"><?= $row['due'] ?></span> </td>
                           </tr>
-                        <?php  } ?>
+                        <?php } ?>
                       </tbody>
                     </table>
                   </div>
@@ -898,7 +1136,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                           $datediff = $your_date - $now;
                           $total_days = round($datediff / (60 * 60 * 24));
                           if ($next_date == $Date):
-                        ?>
+                            ?>
                             <tr>
                               <td><?= ucwords($r['client_name']) ?> (<?= $r['client_contact'] ?>)</td>
                               <td><?= $r['order_date'] ?></td>
@@ -927,7 +1165,8 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
         </div>
       </div>
 
-      <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+      <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -1106,42 +1345,42 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
         ['bold', 'italic', 'underline', 'strike'],
         ['blockquote', 'code-block'],
         [{
-            'header': 1
-          },
-          {
-            'header': 2
-          }
+          'header': 1
+        },
+        {
+          'header': 2
+        }
         ],
         [{
-            'list': 'ordered'
-          },
-          {
-            'list': 'bullet'
-          }
+          'list': 'ordered'
+        },
+        {
+          'list': 'bullet'
+        }
         ],
         [{
-            'script': 'sub'
-          },
-          {
-            'script': 'super'
-          }
+          'script': 'sub'
+        },
+        {
+          'script': 'super'
+        }
         ],
         [{
-            'indent': '-1'
-          },
-          {
-            'indent': '+1'
-          }
+          'indent': '-1'
+        },
+        {
+          'indent': '+1'
+        }
         ], // outdent/indent
         [{
           'direction': 'rtl'
         }], // text direction
         [{
-            'color': []
-          },
-          {
-            'background': []
-          }
+          'color': []
+        },
+        {
+          'background': []
+        }
         ], // dropdown with defaults from theme
         [{
           'align': []
@@ -1156,14 +1395,14 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
       });
     }
     // Example starter JavaScript for disabling form submissions if there are invalid fields
-    (function() {
+    (function () {
       'use strict';
-      window.addEventListener('load', function() {
+      window.addEventListener('load', function () {
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
         var forms = document.getElementsByClassName('needs-validation');
         // Loop over them and prevent submission
-        var validation = Array.prototype.filter.call(forms, function(form) {
-          form.addEventListener('submit', function(event) {
+        var validation = Array.prototype.filter.call(forms, function (form) {
+          form.addEventListener('submit', function (event) {
             if (form.checkValidity() === false) {
               event.preventDefault();
               event.stopPropagation();

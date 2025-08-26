@@ -849,6 +849,7 @@ function getOrderTotal() {
     total_bill += selling_rate * final_qty;
     total_profit += (selling_rate - purchase_rate) * final_qty;
 
+    $('#ordered_discount').attr('max', total_profit);
     total_return_amount += return_qty * selling_rate;
   });
   // Adjust profit for discount
@@ -919,7 +920,6 @@ function getOrderTotal() {
 
 function getRemaingAmount() {
   var paid_ammount = parseFloat($('#paid_ammount').val()) || 0;
-  var total_profit_amount = parseFloat($('#total_profit_amount').text().replace(/,/g, ''));
 
   // Remove commas before parsing
   var grand_total_text = $('#product_grand_total_amount').html().replace(/,/g, '');
@@ -930,7 +930,6 @@ function getRemaingAmount() {
   // Absolute value to avoid negative display
   $('#remaining_ammount').val(Math.abs(total).toFixed(2));
   $('#paid_ammount').attr('min', product_grand_total_amount);
-  $('#ordered_discount').attr('max', total_profit_amount);
 }
 
 function editByid(id, code, price, qty) {
@@ -979,31 +978,93 @@ function getBalance(val, id) {
 }
 // ---------------------------order gui---------------------------------------
 
+// $(document).ready(function () {
+//   $("#barcode_product").focus();
+//   $("#get_product_code").focus();
+
+//   $("#barcode_product").on('keydown', function (event) {
+//     if (event.key === "Enter" || event.keyCode === 13) {
+//       event.preventDefault();
+//       let barcode = $(this).val().trim();
+//       if (barcode !== "") {
+//         // alert("Scanned barcode: " + barcode);
+//         addbarcode_product(barcode, 'plus');
+//         $(this).val(''); // Clear the input
+
+//         // Focus back after short delay
+//         setTimeout(() => {
+//           $("#barcode_product").focus();
+//         }, 100);
+//       } else {
+//         alert("No barcode scanned!");
+//         setTimeout(() => {
+//           $("#barcode_product").focus();
+//         }, 100);
+//       }
+//     }
+//   });
+// });
+
 $(document).ready(function () {
   $("#barcode_product").focus();
   $("#get_product_code").focus();
 
+  // Barcode input key handling
   $("#barcode_product").on('keydown', function (event) {
-    if (event.key === "Enter" || event.keyCode === 13) {
+    if ((event.key === "Enter" || event.keyCode === 13) && !event.ctrlKey) {
       event.preventDefault();
       let barcode = $(this).val().trim();
       if (barcode !== "") {
-        // alert("Scanned barcode: " + barcode);
         addbarcode_product(barcode, 'plus');
-        $(this).val(''); // Clear the input
-
-        // Focus back after short delay
-        setTimeout(() => {
-          $("#barcode_product").focus();
-        }, 100);
+        $(this).val('');
+        setTimeout(() => $("#barcode_product").focus(), 100);
       } else {
         alert("No barcode scanned!");
-        setTimeout(() => {
-          $("#barcode_product").focus();
-        }, 100);
+        setTimeout(() => $("#barcode_product").focus(), 100);
       }
     }
   });
+
+  // Ctrl + Enter to submit
+  $(document).on('keydown', function (e) {
+    // Ctrl + Enter for submit
+    if (e.ctrlKey && (e.key === 'Enter' || e.keyCode === 13)) {
+      if ($('.product_ids').length === 0) {
+        sweeetalert("Please add at least one product before submitting!", "warning", 2000);
+        return;
+      }
+      $('#sale_order_btn').trigger('click');
+    }
+
+    // Alt + D to highlight ordered_discount
+    if (e.altKey && (e.key === 'd' || e.keyCode === 68)) {
+      e.preventDefault();
+      let $discount = $('#ordered_discount');
+      $discount.focus().select();
+      $discount.addClass('ring-2 ring-yellow-400');
+      setTimeout(() => $discount.removeClass('ring-2 ring-yellow-400'), 1500);
+    }
+
+    // Alt + E to highlight freight
+    if (e.altKey && (e.key === 'e' || e.keyCode === 69)) {
+      e.preventDefault();
+      let $freight = $('#freight');
+      $freight.focus().select();
+      $freight.addClass('ring-2 ring-yellow-400');
+      setTimeout(() => $freight.removeClass('ring-2 ring-yellow-400'), 1500);
+    }
+
+    // Alt + Q to highlight get_product_quantity
+    if (e.altKey && (e.key === 'q' || e.keyCode === 81)) {
+      e.preventDefault();
+      let $qty = $('#get_product_quantity');
+      $qty.focus().select();
+      $qty.addClass('ring-2 ring-yellow-400');
+      setTimeout(() => $qty.removeClass('ring-2 ring-yellow-400'), 1500);
+    }
+  });
+
+  
 });
 
 
@@ -1113,6 +1174,7 @@ function addbarcode_product(code, action_value) {
     }
   });
 }
+
 
 
 

@@ -162,7 +162,10 @@ if (!empty($_REQUEST['edit_order_id'])) {
                       while ($r = mysqli_fetch_assoc($q)):
                         $profit = ((float) $r['rate'] - (float) $r['purchase_rate']) * (float) $r['quantity'];
                         $total_profit += $profit;
+
+                        $profit_sum = $total_profit;
                     ?>
+                         <!-- <input type="hidden" name="profit_sum" id="profit_sum" value="<?= $profit_sum ?>"> -->
                         <tr id="product_idN_<?= $r['product_id'] ?>">
                           <input type="hidden" data-purchase="<?= $r['purchase_rate'] ?>" data-price="<?= $r['rate'] ?>"
                             data-quantity="<?= $r['quantity'] ?>" id="product_ids_<?= $r['product_id'] ?>"
@@ -215,9 +218,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
                     <!-- Total Profit: Separate Row -->
                     <tr>
                       <td colspan="6" class="text-right table-bordered font-weight-bold">Total Profit:</td>
-                      <td class="table-bordered font-weight-bold" id="total_profit_amount">
-                        <?= number_format($total_profit, 2) ?></td>
-                      <input type="hidden" name="total_profit" id="total_profit">
+                      <td class="table-bordered font-weight-bold">
+                        <input type="text" class="form-control" name="total_profit" id="total_profit" value="<?= @empty($_REQUEST['edit_order_id']) ? $total_profit : $fetchOrder['customer_profit'] ?>" readonly>
+                      </td> 
                     </tr>
 
                     <!-- Sub Total and Discount -->

@@ -6,7 +6,7 @@ include_once 'includes/head.php';
 
 // Get filters from GET request
 $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : '';
-$endDate   = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+$endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 
 // Build the SQL query for returns
 $sql = "SELECT * FROM returns WHERE payment_type = 'cash_in_hand'";
@@ -30,6 +30,35 @@ $q = mysqli_query($dbc, $sql);
         font-weight: 500;
         margin-bottom: 0.25rem;
         display: block;
+    }
+
+    .item-list {
+        padding: 5px 0;
+    }
+
+    .item-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        padding: 2px 0;
+        border-bottom: 1px dashed #ddd;
+    }
+
+    .item-code,
+    .item-name,
+    .item-qty,
+    .item-total {
+        display: inline-block;
+        padding: 2px 5px;
+        text-align: left;
+    }
+
+    .item-name strong {
+        color: #333;
+    }
+
+    .item-total strong {
+        color: #28a745;
     }
 </style>
 
@@ -67,7 +96,7 @@ $q = mysqli_query($dbc, $sql);
                             </form>
 
 
-                            <?php if (!empty($startDate) || !empty($endDate)) : ?>
+                            <?php if (!empty($startDate) || !empty($endDate)): ?>
                                 <p><strong>Showing results from:</strong>
                                     <?= !empty($startDate) ? date('d M, Y h:i A', strtotime($startDate)) : 'Beginning' ?> to
                                     <?= !empty($endDate) ? date('d M, Y h:i A', strtotime($endDate)) : 'Now' ?>
@@ -81,11 +110,11 @@ $q = mysqli_query($dbc, $sql);
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Customer Name</th>
-                                    <th>Customer Contact</th>
+                                    <th>Customer Detail</th>
                                     <th>Return Date</th>
-                                    <th>Amount</th>
                                     <th>Return Type</th>
+                                    <th>Items</th>
+                                    <th>Amount</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -94,14 +123,52 @@ $q = mysqli_query($dbc, $sql);
                                 $c = 0;
                                 while ($r = mysqli_fetch_assoc($q)) {
                                     $c++;
-                                ?>
+                                    ?>
                                     <tr>
                                         <td><?= $r['return_id'] ?></td>
-                                        <td><?= !empty($r['client_name']) ? ucwords($r['client_name']) : 'Not Assigned' ?></td>
-                                        <td><?= !empty($r['client_contact']) ? $r['client_contact'] : 'Not Assigned' ?></td>
-                                        <td><?= date('Y-m-d h:i A', strtotime($r['timestamp'])) ?></td>
-                                        <td><?= $r['grand_total'] ?></td>
+                                        <td><?= !empty($r['client_name']) ? ucwords($r['client_name']) : 'Not Assigned' ?><br>
+                                            <small
+                                                class="text-muted"><?= !empty($r['client_contact']) ? $r['client_contact'] : 'Not Assigned' ?></small>
+                                        </td>
+                                        <td>
+                                            <?= date('h:i A', strtotime($r['timestamp'])) ?><br>
+                                            <small
+                                                class="text-muted"><?= date('Y-m-d', strtotime($r['timestamp'])) ?></small>
+                                        </td>
+                                       
                                         <td><?= ucwords(str_replace('_', ' ', $r['payment_type'])) ?></td>
+                                        <td>
+                                            <?php
+                                            $sql_item = "SELECT ri.*, p.product_name, p.product_code FROM return_items ri 
+                                                         JOIN product p ON ri.product_id = p.product_id 
+                                                         WHERE ri.return_id = {$r['return_id']}
+                                                         ORDER BY ri.return_item_id DESC";
+
+                                            $item = mysqli_query($dbc, $sql_item);
+                                            if (mysqli_num_rows($item) > 0) {
+                                                echo '<div class="item-list">';
+                                                while ($i = mysqli_fetch_assoc($item)) {
+                                                    $code = strtoupper($i['product_code']);
+                                                    $name = ucwords($i['product_name']);
+                                                    $qty = $i['quantity'];
+                                                    $rate = $i['rate'];
+                                                    $total = $qty * $rate;
+                                                    echo "
+                                                            <div class='item-row'>
+                                                            <span class='item-code' style='width: 160px;'>{$code}</span>
+                                                            <span class='item-name' style='width: 200px;'><strong>{$name}</strong></span>
+                                                            <span class='item-qty' style='width: 100px;'>{$qty} × {$rate}</span>
+                                                            <span class='item-total' style='width: 70px;'><strong>{$total}</strong></span>
+                                                            </div>
+                                                         ";
+                                                }
+                                                echo '</div>';
+                                            } else {
+                                                echo "No items";
+                                            }
+                                            ?>
+                                        </td>
+                                         <td><?= $r['grand_total'] ?></td>
                                         <td>
                                             <?php if ((@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin") && $r['payment_type'] == "cash_in_hand"): ?>
                                                 <!-- <form action="return_form.php" method="POST" style="display:inline-block;">
@@ -111,7 +178,9 @@ $q = mysqli_query($dbc, $sql);
                                             <?php endif; ?>
 
                                             <?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
-                                                <a href="#" onclick="deleteAlert('<?= $r['return_id'] ?>','returns','return_id','view_returns_tb')" class="btn btn-danger btn-sm m-1">Delete</a>
+                                                <a href="#"
+                                                    onclick="deleteAlert('<?= $r['return_id'] ?>','returns','return_id','view_returns_tb')"
+                                                    class="btn btn-danger btn-sm m-1">Delete</a>
                                             <?php endif; ?>
 
                                             <!-- <button class="btn btn-info btn-sm m-1" onclick="printOrder(<?= $r['return_id'] ?>)">Print</button> -->
