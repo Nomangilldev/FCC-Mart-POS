@@ -154,7 +154,7 @@ product.product_name FROM order_item
                 </tr>
 
                 <tr>
-                    <td><strong>Returnable</strong></td>
+                    <td><strong>Change</strong></td>
                     <td><?= number_format(abs($grand_total - $orderData['paid']), 2) ?></td>
                 </tr>
             </table>

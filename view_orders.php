@@ -18,7 +18,7 @@ if (!empty($startDate) && !empty($endDate)) {
   $sql .= " AND `timestamp` <= '{$endDate} 23:59:59'";
 }
 
-
+$sql .= " ORDER BY order_id DESC";
 $q = mysqli_query($dbc, $sql);
 ?>
 <style>
@@ -85,6 +85,7 @@ $q = mysqli_query($dbc, $sql);
                   <th>Customer Contact</th>
                   <th>Order Date</th>
                   <th>Amount</th>
+                  <th>Profit</th>
                   <th>Order Type</th>
                   <th>Action</th>
                 </tr>
@@ -101,6 +102,7 @@ $q = mysqli_query($dbc, $sql);
                     <td><?= !empty($r['client_contact']) ? $r['client_contact'] : 'Not Assigned' ?></td>
                     <td><?= date('Y-m-d h:i A', strtotime($r['timestamp'])) ?></td>
                     <td><?= $r['grand_total'] ?></td>
+                    <td><?= $r['customer_profit'] ?></td>
                     <td><?= ucwords(str_replace('_', ' ', $r['payment_type'])) ?></td>
                     <td>
                       <?php

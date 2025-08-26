@@ -186,6 +186,8 @@ $(document).ready(function () {
     e.preventDefault();
 
     var form = $('#sale_order_fm');
+    console.log(form.serialize());
+
 
     $.ajax({
       type: 'POST',
@@ -200,11 +202,13 @@ $(document).ready(function () {
         if (response.sts === "success") {
           // Reset the form
           form[0].reset();
+          $('#ratetype').trigger('change');;
 
           // Clear table and totals
           $('#purchase_product_tb').html('');
           $('#product_grand_total_amount').html('');
           $('#product_total_amount').html('');
+
           // alert(response.type);
           // Print the order
           if (response.type == 'order') {
@@ -586,6 +590,7 @@ $("#get_product_name").on('change', function () {
       if (payment_type === "cash_in_hand" || payment_type === "credit_sale") {
         $("#barcode_product").val(response.product_code);
         $("#get_product_price").val(response.current_rate);
+        $("#get_product_price_wholesale").val(response.wholesale_rate);
         $("#get_product_quantity").attr("max", response.qty);
         $('#addProductPurchase').prop("disabled", response.qty <= 0);
         $("#get_purchase_price").val(response.purchase_rate);
@@ -698,7 +703,7 @@ $("#addProductPurchase").on('click', function () {
   var payment_type = $('#payment_type').val();
 
   var name = $('#get_product_name :selected').text();
-  var price = $('#get_product_price').val();
+  var price = $('.price-input').val();
   var purchaseprice = $('#get_purchase_price').val();
   var id = $('#get_product_name :selected').val();
   var code = ($('#get_product_code').val() || $('#barcode_product').val() || "").toUpperCase();
@@ -725,6 +730,7 @@ $("#addProductPurchase").on('click', function () {
     $('#get_product_code').val('').focus();
     $('#barcode_product').val('').focus();
     $('#get_product_price').val('');
+    $('#get_product_price_wholesale').val('');
     $('#get_sale_price').val('');
     $('#get_product_quantity').val(0);
     $("#instockQty").html("In Stock: 0");
@@ -845,13 +851,22 @@ function getOrderTotal() {
 
     total_return_amount += return_qty * selling_rate;
   });
-
+  // Adjust profit for discount
   var discount = parseFloat($("#ordered_discount").val()) || 0;
   var freight = parseFloat($("#freight").val()) || 0;
 
   if (!(payment_type == "cash_in_hand" || payment_type == "credit_sale")) {
     freight = 0;
   }
+
+  if (discount > total_profit) {
+    alert("Discount cannot be greater than total profit.");
+    $("#ordered_discount").val("").change(); // or use .val("0") if you prefer 0 instead of blank
+    $("#ordered_discount").focus(); // keep field selected for correction
+    discount = 0; // Ensure it's not used in calculations
+  }
+
+  total_profit -= discount;
 
   grand_total = (total_bill - discount) + freight;
 
@@ -868,6 +883,9 @@ function getOrderTotal() {
     minimumFractionDigits: 2
   }));
   $("#total_profit_amount").html(total_profit.toLocaleString('en-US', {
+    minimumFractionDigits: 2
+  }));
+  $("#total_profit").val(total_profit.toLocaleString('en-US', {
     minimumFractionDigits: 2
   }));
 
@@ -901,6 +919,7 @@ function getOrderTotal() {
 
 function getRemaingAmount() {
   var paid_ammount = parseFloat($('#paid_ammount').val()) || 0;
+  var total_profit_amount = parseFloat($('#total_profit_amount').text().replace(/,/g, ''));
 
   // Remove commas before parsing
   var grand_total_text = $('#product_grand_total_amount').html().replace(/,/g, '');
@@ -910,6 +929,8 @@ function getRemaingAmount() {
 
   // Absolute value to avoid negative display
   $('#remaining_ammount').val(Math.abs(total).toFixed(2));
+  $('#paid_ammount').attr('min', product_grand_total_amount);
+  $('#ordered_discount').attr('max', total_profit_amount);
 }
 
 function editByid(id, code, price, qty) {
@@ -988,6 +1009,8 @@ $(document).ready(function () {
 
 
 function addbarcode_product(code, action_value) {
+  var order_type = $("#ratetype").val();
+
   $.ajax({
     url: 'php_action/custom_action.php',
     type: 'post',
@@ -996,6 +1019,9 @@ function addbarcode_product(code, action_value) {
     },
     dataType: 'json',
     success: function (res) {
+      // Choose price based on order type
+      let display_rate = order_type === "wholesale" ? parseFloat(res.f_days) : parseFloat(res.current_rate);
+
       if (res.quantity_instock > 0) {
         if ($('#product_idN_' + res.product_id).length) {
           $(".product_ids").each(function () {
@@ -1024,7 +1050,7 @@ function addbarcode_product(code, action_value) {
               $("#product_idN_" + res.product_id).replaceWith(`
                 <tr id="product_idN_${res.product_id}">
                   <input type="hidden"
-                    data-price="${res.current_rate}"
+                    data-price="${display_rate}"
                     data-purchase="${res.purchase_rate}"
                     data-quantity="${Currentquantity}"
                     id="product_ids_${res.product_id}"
@@ -1032,13 +1058,13 @@ function addbarcode_product(code, action_value) {
                     name="product_ids[]"
                     value="${res.product_id}">
                   <input type="hidden" id="product_quantites_${res.product_id}" name="product_quantites[]" value="${Currentquantity}">
-                  <input type="hidden" id="product_rates_${res.product_id}" name="product_rates[]" value="${res.current_rate}">
+                  <input type="hidden" id="product_rates_${res.product_id}" name="product_rates[]" value="${display_rate}">
                   <td>${res.product_code.toUpperCase()}</td>
                   <td>${res.product_name.toUpperCase()} (<span class="text-success">${res.brand_name.toUpperCase()}</span>)</td>
-                  <td>${res.current_rate}</td>
+                  <td>${display_rate}</td>
                   <td>${Currentquantity}</td>
-                  <td>${(res.current_rate * Currentquantity - res.purchase_rate * Currentquantity).toFixed(2)}</td>
-                  <td>${(res.current_rate * Currentquantity).toFixed(2)}</td>
+                  <td>${(display_rate * Currentquantity - res.purchase_rate * Currentquantity).toFixed(2)}</td>
+                  <td>${(display_rate * Currentquantity).toFixed(2)}</td>
                   <td>
                     <button type="button" onclick="addbarcode_product('${res.product_code}', 'plus')" class="btn btn-sm btn-success" title="Increase quantity">+ Add</button>
                     <button type="button" onclick="addbarcode_product('${res.product_code}', 'minus')" class="btn btn-sm btn-warning" title="Decrease quantity">− Remove</button>
@@ -1056,7 +1082,7 @@ function addbarcode_product(code, action_value) {
           $("#purchase_product_tb").append(`
             <tr id="product_idN_${res.product_id}">
               <input type="hidden"
-                data-price="${res.current_rate}"
+                data-price="${display_rate}"
                 data-purchase="${res.purchase_rate}"
                 data-quantity="1"
                 id="product_ids_${res.product_id}"
@@ -1064,14 +1090,14 @@ function addbarcode_product(code, action_value) {
                 name="product_ids[]"
                 value="${res.product_id}">
               <input type="hidden" id="product_quantites_${res.product_id}" name="product_quantites[]" value="1">
-              <input type="hidden" id="product_rate_${res.product_id}" name="product_rates[]" value="${res.current_rate}">
-              <input type="hidden" id="product_totalrate_${res.product_id}" name="product_totalrates[]" value="${res.current_rate}">
+              <input type="hidden" id="product_rate_${res.product_id}" name="product_rates[]" value="${display_rate}">
+              <input type="hidden" id="product_totalrate_${res.product_id}" name="product_totalrates[]" value="${display_rate}">
               <td>${res.product_code.toUpperCase()}</td>
               <td>${res.product_name.toUpperCase()} (<span class="text-success">${res.brand_name.toUpperCase()}</span>)</td>
-              <td>${res.current_rate}</td>
+              <td>${display_rate}</td>
               <td>1</td>
-              <td>${(res.current_rate - res.purchase_rate).toFixed(2)}</td>
-              <td>${res.current_rate}</td>
+              <td>${(display_rate - res.purchase_rate).toFixed(2)}</td>
+              <td>${display_rate}</td>
               <td>
                 <button type="button" onclick="addbarcode_product('${res.product_code}', 'plus')" class="btn btn-sm btn-success" title="Increase quantity">+ Add</button>
                 <button type="button" onclick="addbarcode_product('${res.product_code}', 'minus')" class="btn btn-sm btn-warning" title="Decrease quantity">− Remove</button>
@@ -1079,7 +1105,6 @@ function addbarcode_product(code, action_value) {
               </td>
             </tr>
           `);
-
           getOrderTotal();
         }
       } else {
@@ -1092,11 +1117,9 @@ function addbarcode_product(code, action_value) {
 
 
 
+
 // ---------------------------order gui---------------------------------------
 function addProductOrder(id, max = 100, action_value) {
-
-  //$("#ordered_products").append(data);
-
 
   $.ajax({
     url: 'php_action/custom_action.php',

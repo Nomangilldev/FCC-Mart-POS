@@ -332,10 +332,10 @@ function insert_data($dbc, $table, $data)
 
       # code...
 
-      $val = validate_data($dbc, $value);
+      $val = strtolower(validate_data($dbc, $value));
     } else {
 
-      $val = $value;
+      $val = strtolower($value);
     }
 
     $values = $values . "'" . $val . "'" . $comma;

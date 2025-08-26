@@ -28,7 +28,12 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
           <div class="col-12">
             <div class="row align-items-center mb-2">
               <div class="col">
-                <h2 class="h5 page-title">Welcome!</h2>
+                <?php
+                 $user_id = $_SESSION['user_id'];
+                $user = fetchRecord($dbc, 'users', 'user_id', $user_id );
+                ?>
+                
+                <h2 class="h5 page-title">Welcome! <span class="text-primary"><?= $user['username'] ?></span></h2>
               </div>
               <div class="col-auto">
                 <form class="form-inline">
@@ -523,22 +528,22 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                             echo $total = isset($total_sales) ? $total_sales : "0";
                             ?>
                           </span><br />
-                          <span class="small text-muted">+20%</span>
-                          <span class="fe fe-arrow-up text-success fe-12"></span>
+                          <!-- <span class="small text-muted">+20%</span> -->
+                          <!-- <span class="fe fe-arrow-up text-success fe-12"></span> -->
                         </div>
                         <div class="col-4 text-center mb-3">
                           <p class="mb-1 small text-muted">Purchse</p>
                           <span class="h3">
                             <?= getIncome($dbc, "where order_date='$current_date'") ?>
                           </span><br />
-                          <span class="small text-muted">+20%</span>
-                          <span class="fe fe-arrow-up text-success fe-12"></span>
+                          <!-- <span class="small text-muted">+20%</span> -->
+                          <!-- <span class="fe fe-arrow-up text-success fe-12"></span> -->
                         </div>
                         <div class="col-4 text-center mb-3">
                           <p class="mb-1 small text-muted">Profit</p>
                           <span class="h3"><?= getexpense($dbc, "AND voucher_date='$current_date'") ?></span><br />
-                          <span class="small text-muted">-2%</span>
-                          <span class="fe fe-arrow-down text-danger fe-12"></span>
+                          <!-- <span class="small text-muted">-2%</span> -->
+                          <!-- <span class="fe fe-arrow-down text-danger fe-12"></span> -->
                         </div>
                       </div>
                     <?php endif; ?>
@@ -597,7 +602,7 @@ $end_of_month      = date('Y-m-t', strtotime($current_date));
                   <div class="card-body">
                     <div class="card-title">
                       <strong>Sale</strong>
-                      <a class="float-right small text-muted" href="#!">View all</a>
+                      <a class="float-right small text-muted" href="analytics.php">View all</a>
                     </div>
                     <div class="row mt-b">
                       <?php

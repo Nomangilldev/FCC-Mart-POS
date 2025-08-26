@@ -133,7 +133,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label for="get_product_price">Purchase Rate</label>
                 <input type="number"
                   min="0"
-                  class="form-control"
+                  class="form-control price-input"
                   id="get_product_price"
                   placeholder="Enter purchase rate">
               </div>
@@ -283,7 +283,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             id="payment_account"
                             onchange="getBalance(this.value,'payment_account_bl')"
                             aria-label="Payment Account"
-                            aria-describedby="basic-addon1">
+                            aria-describedby="basic-addon1" required>
                             <option value="">Select Bank</option>
                             <?php
                             $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank'");
@@ -295,7 +295,10 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                 $isSelected = ($fetchPurchase['payment_account'] == $r['customer_id']) ? 'selected' : '';
                               } else {
                                 // New Form - Default to 'Cash In Hand'
-                                $isSelected = (strtolower($r['customer_id']) == '2') ? 'selected' : '';
+                                // $isSelected = (strtolower($r['customer_id']) == '2') ? 'selected' : '';
+                                 if (stripos($r['customer_name'], 'cash') !== false) {
+                                 $isSelected = 'selected';
+                              }
                               }
                             ?>
                               <option <?= $isSelected ?> value="<?= $r['customer_id'] ?>">

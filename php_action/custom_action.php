@@ -627,6 +627,7 @@ if (isset($_REQUEST['getPrice'])) {
 	// Build and return response
 	$response = [
 		"current_rate"   => @$record['current_rate'],
+		"wholesale_rate"   => @$record['f_days'],
 		"purchase_rate"  => @$record['purchase_rate'],
 		"qty"            => (float) @$record['quantity_instock'],
 		"sts"            => "success",
@@ -657,7 +658,8 @@ if (isset($_REQUEST['sale_order_client_name'])) {
 			'payment_type' => 'cash_in_hand',
 			'vehicle_no' => @$_REQUEST['vehicle_no'],
 			'freight' => @$_REQUEST['freight'],
-			'user_id' => @$_SESSION['userId']
+			'user_id' => @$_SESSION['userId'],
+			'type' => @$_REQUEST['ratetype']
 		];
 
 		if ($_REQUEST['product_order_id'] == "") {
@@ -698,7 +700,7 @@ if (isset($_REQUEST['sale_order_client_name'])) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						@$qty = (float)$quantity_instock['quantity_instock'] - (float)$product_quantites;
-						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty',current_rate = '$product_rates' WHERE product_id='" . $product_id . "' ");
+						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 					}
 					insert_data($dbc, 'order_item', $order_items);
 
@@ -717,6 +719,7 @@ if (isset($_REQUEST['sale_order_client_name'])) {
 				$newOrder = [
 					'total_amount' => $total_ammount,
 					'discount' => $_REQUEST['ordered_discount'],
+					'customer_profit' => $_REQUEST['total_profit'],
 					'grand_total' => $total_grand,
 					'payment_status' => $payment_status,
 					'due' => $due_amount,
@@ -770,7 +773,7 @@ if (isset($_REQUEST['sale_order_client_name'])) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
-						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' ,current_rate = '$product_rates'  WHERE product_id='" . $product_id . "' ");
+						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty'   WHERE product_id='" . $product_id . "' ");
 					}
 					//update_data($dbc,'order_item', $order_items , 'order_id',$_REQUEST['product_order_id']);
 					insert_data($dbc, 'order_item', $order_items);
