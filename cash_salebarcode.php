@@ -39,21 +39,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
               </div>
 
               <div class="col-sm-3">
-                <label>Customer Number</label>
-                <input type="number" onchange="getCustomer_name(this.value)"
-                  value="<?= @$fetchOrder['client_contact'] ?>" autocomplete="off" min="0" class="form-control"
-                  name="client_contact" list="phone" placeholder="Enter Customer Number">
-                <datalist id="phone">
-                  <?php
-                  $q = mysqli_query($dbc, "SELECT DISTINCT client_contact from orders");
-                  while ($r = mysqli_fetch_assoc($q)) {
-                  ?>
-                    <option value="<?= $r['client_contact'] ?>"><?= $r['client_contact'] ?></option>
-                  <?php } ?>
-                </datalist>
-              </div>
-
-              <div class="col-sm-3">
                 <label>Customer Name</label>
                 <input type="text" id="sale_order_client_name" value="<?= @$fetchOrder['client_name'] ?>"
                   class="form-control" autocomplete="off" name="sale_order_client_name" list="client_name"
@@ -62,8 +47,23 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   <?php
                   $q = mysqli_query($dbc, "SELECT DISTINCT client_name FROM orders");
                   while ($r = mysqli_fetch_assoc($q)) {
-                  ?>
+                    ?>
                     <option value="<?= $r['client_name'] ?>"><?= $r['client_name'] ?></option>
+                  <?php } ?>
+                </datalist>
+              </div>
+
+              <div class="col-sm-3">
+                <label>Customer Number</label>
+                <input type="number" onchange="getCustomer_name(this.value)"
+                  value="<?= @$fetchOrder['client_contact'] ?>" autocomplete="off" min="0" class="form-control"
+                  name="client_contact" list="phone" placeholder="Enter Customer Number">
+                <datalist id="phone">
+                  <?php
+                  $q = mysqli_query($dbc, "SELECT DISTINCT client_contact from orders");
+                  while ($r = mysqli_fetch_assoc($q)) {
+                    ?>
+                    <option value="<?= $r['client_contact'] ?>"><?= $r['client_contact'] ?></option>
                   <?php } ?>
                 </datalist>
               </div>
@@ -99,7 +99,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   while ($row = mysqli_fetch_array($result)) {
                     $getBrand = fetchRecord($dbc, "brands", "brand_id", $row['brand_id']);
                     $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
-                  ?>
+                    ?>
                     <option data-price="<?= $row["current_rate"] ?>" data-code="<?= $row["product_code"] ?>"
                       value="<?= $row["product_id"] ?>">
                       <?= ucwords($row["product_name"]) ?> | <?= ucwords(@$getBrand["brand_name"]) ?>
@@ -146,7 +146,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   <tbody class="table table-bordered" id="purchase_product_tb">
                     <?php
                     $total_profit = 0; // Initialize total profit
-
+                    
                     if (isset($_REQUEST['edit_order_id'])):
                       $q = mysqli_query(
                         $dbc,
@@ -164,8 +164,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
                         $total_profit += $profit;
 
                         $profit_sum = $total_profit;
-                    ?>
-                         <!-- <input type="hidden" name="profit_sum" id="profit_sum" value="<?= $profit_sum ?>"> -->
+                        ?>
+                        <!-- <input type="hidden" name="profit_sum" id="profit_sum" value="<?= $profit_sum ?>"> -->
                         <tr id="product_idN_<?= $r['product_id'] ?>">
                           <input type="hidden" data-purchase="<?= $r['purchase_rate'] ?>" data-price="<?= $r['rate'] ?>"
                             data-quantity="<?= $r['quantity'] ?>" id="product_ids_<?= $r['product_id'] ?>"
@@ -210,7 +210,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </button>
                           </td>
                         </tr>
-                    <?php endwhile;
+                      <?php endwhile;
                     endif; ?>
                   </tbody>
 
@@ -219,8 +219,10 @@ if (!empty($_REQUEST['edit_order_id'])) {
                     <tr>
                       <td colspan="6" class="text-right table-bordered font-weight-bold">Total Profit:</td>
                       <td class="table-bordered font-weight-bold">
-                        <input type="text" class="form-control" name="total_profit" id="total_profit" value="<?= @empty($_REQUEST['edit_order_id']) ? $total_profit : $fetchOrder['customer_profit'] ?>" readonly>
-                      </td> 
+                        <input type="text" class="form-control" name="total_profit" id="total_profit"
+                          value="<?= @empty($_REQUEST['edit_order_id']) ? $total_profit : $fetchOrder['customer_profit'] ?>"
+                          readonly>
+                      </td>
                     </tr>
 
                     <!-- Sub Total and Discount -->
@@ -297,7 +299,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 $isSelected = 'selected';
                               }
                             }
-                          ?>
+                            ?>
                             <option <?= $isSelected ?> value="<?= $r['customer_id'] ?>">
                               <?= ucwords($r['customer_name']) ?>
                             </option>
@@ -315,7 +317,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
               <!-- <div class="text-right "  id="error"></div> -->
               <div class="col-sm-6 offset-6">
                 <div class="text-end text-danger mb-2" id="error"></div>
-                <button class="btn btn-admin float-right " name="sale_order_btn" value="print" type="submit" id="sale_order_btn">Save
+                <button class="btn btn-admin float-right " name="sale_order_btn" value="print" type="submit"
+                  id="sale_order_btn">Save
                   and Print</button>
 
               </div>
@@ -333,15 +336,15 @@ if (!empty($_REQUEST['edit_order_id'])) {
 </html>
 <?php include_once 'includes/foot.php'; ?>
 <script type="text/javascript">
-  $(document).ready(function() {
-    $(window).keydown(function(event) {
+  $(document).ready(function () {
+    $(window).keydown(function (event) {
       if (event.keyCode == 13) {
         event.preventDefault();
         return false;
       }
     });
 
-    $('#ratetype').on('change', function() {
+    $('#ratetype').on('change', function () {
       let selected = $(this).val();
       const $priceInput = $('.price-input'); // use class instead of id
 
@@ -357,7 +360,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
     });
   });
 
-  document.addEventListener('keydown', function(e) {
+  document.addEventListener('keydown', function (e) {
     // Convert key to lowercase to avoid shift issues
     const key = e.key.toLowerCase();
 

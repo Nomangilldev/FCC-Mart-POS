@@ -11,7 +11,10 @@ $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 // Build the SQL query for returns
 $sql = "SELECT * FROM returns WHERE payment_type = 'cash_in_hand'";
 
-if (!empty($startDate) && !empty($endDate)) {
+if (empty($startDate) && empty($endDate)) {
+    $today = date('Y-m-d');
+    $sql .= " AND DATE(`timestamp`) = '{$today}'";
+} elseif (!empty($startDate) && !empty($endDate)) {
     $sql .= " AND `timestamp` BETWEEN '{$startDate} 00:00:00' AND '{$endDate} 23:59:59'";
 } elseif (!empty($startDate)) {
     $sql .= " AND `timestamp` >= '{$startDate} 00:00:00'";
@@ -110,6 +113,7 @@ $q = mysqli_query($dbc, $sql);
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>Order Bill No</th>
                                     <th>Customer Detail</th>
                                     <th>Return Date</th>
                                     <th>Return Type</th>
@@ -126,6 +130,7 @@ $q = mysqli_query($dbc, $sql);
                                     ?>
                                     <tr>
                                         <td><?= $r['return_id'] ?></td>
+                                        <td><?= $r['original_order_id'] ?></td>
                                         <td><?= !empty($r['client_name']) ? ucwords($r['client_name']) : 'Not Assigned' ?><br>
                                             <small
                                                 class="text-muted"><?= !empty($r['client_contact']) ? $r['client_contact'] : 'Not Assigned' ?></small>
@@ -135,7 +140,7 @@ $q = mysqli_query($dbc, $sql);
                                             <small
                                                 class="text-muted"><?= date('Y-m-d', strtotime($r['timestamp'])) ?></small>
                                         </td>
-                                       
+
                                         <td><?= ucwords(str_replace('_', ' ', $r['payment_type'])) ?></td>
                                         <td>
                                             <?php
@@ -168,7 +173,7 @@ $q = mysqli_query($dbc, $sql);
                                             }
                                             ?>
                                         </td>
-                                         <td><?= $r['grand_total'] ?></td>
+                                        <td><?= $r['grand_total'] ?></td>
                                         <td>
                                             <?php if ((@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin") && $r['payment_type'] == "cash_in_hand"): ?>
                                                 <!-- <form action="return_form.php" method="POST" style="display:inline-block;">

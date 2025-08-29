@@ -156,8 +156,8 @@ for ($i = 0; $i < $print; $i++) {
                                         <?php if ($order['discount'] > 0): ?>
                                             <tr>
                                                 <td colspan="2"></td>
-                                                <td colspan="2">DISCOUNT%</td>
-                                                <td><?= $order['discount'] ?>%</td>
+                                                <td colspan="2">DISCOUNT</td>
+                                                <td>Rs <?= $order['discount'] ?></td>
                                             </tr>
                                         <?php endif; ?>
                                         <tr>

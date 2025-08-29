@@ -89,6 +89,26 @@ if (!empty($_REQUEST['bill_number'])) {
                                     placeholder="Return Date">
                             </div>
 
+                             <div class="col-sm-3">
+                                <label>Customer Name</label>
+                                <input type="text"
+                                    id="sale_order_client_name"
+                                    value="<?= @$fetchOrder['client_name'] ?>"
+                                    class="form-control"
+                                    autocomplete="off"
+                                    name="return_sale_order_client_name"
+                                    list="client_name"
+                                    placeholder="Enter Customer Name">
+                                <datalist id="client_name">
+                                    <?php
+                                    $q = mysqli_query($dbc, "SELECT DISTINCT client_name FROM orders");
+                                    while ($r = mysqli_fetch_assoc($q)) {
+                                    ?>
+                                        <option value="<?= $r['client_name'] ?>"><?= $r['client_name'] ?></option>
+                                    <?php } ?>
+                                </datalist>
+                            </div>
+
                             <div class="col-sm-3">
                                 <label>Customer Number</label>
                                 <input type="number"
@@ -106,26 +126,6 @@ if (!empty($_REQUEST['bill_number'])) {
                                     while ($r = mysqli_fetch_assoc($q)) {
                                     ?>
                                         <option value="<?= $r['client_contact'] ?>"><?= $r['client_contact'] ?></option>
-                                    <?php } ?>
-                                </datalist>
-                            </div>
-
-                            <div class="col-sm-3">
-                                <label>Customer Name</label>
-                                <input type="text"
-                                    id="sale_order_client_name"
-                                    value="<?= @$fetchOrder['client_name'] ?>"
-                                    class="form-control"
-                                    autocomplete="off"
-                                    name="return_sale_order_client_name"
-                                    list="client_name"
-                                    placeholder="Enter Customer Name">
-                                <datalist id="client_name">
-                                    <?php
-                                    $q = mysqli_query($dbc, "SELECT DISTINCT client_name FROM orders");
-                                    while ($r = mysqli_fetch_assoc($q)) {
-                                    ?>
-                                        <option value="<?= $r['client_name'] ?>"><?= $r['client_name'] ?></option>
                                     <?php } ?>
                                 </datalist>
                             </div>

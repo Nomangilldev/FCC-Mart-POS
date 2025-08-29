@@ -10,12 +10,16 @@ $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 // Build the SQL query
 $sql = "SELECT * FROM orders WHERE payment_type='cash_in_hand'";
 
-if (!empty($startDate) && !empty($endDate)) {
-  $sql .= " AND `timestamp` BETWEEN '{$startDate} 00:00:00' AND '{$endDate} 23:59:59'";
+// If both dates are empty → show only today's records
+if (empty($startDate) && empty($endDate)) {
+    $today = date('Y-m-d');
+    $sql .= " AND DATE(`timestamp`) = '{$today}'";
+} elseif (!empty($startDate) && !empty($endDate)) {
+    $sql .= " AND `timestamp` BETWEEN '{$startDate} 00:00:00' AND '{$endDate} 23:59:59'";
 } elseif (!empty($startDate)) {
-  $sql .= " AND `timestamp` >= '{$startDate} 00:00:00'";
+    $sql .= " AND `timestamp` >= '{$startDate} 00:00:00'";
 } elseif (!empty($endDate)) {
-  $sql .= " AND `timestamp` <= '{$endDate} 23:59:59'";
+    $sql .= " AND `timestamp` <= '{$endDate} 23:59:59'";
 }
 
 $sql .= " ORDER BY order_id DESC";

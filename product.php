@@ -30,8 +30,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                 <b class="text-center text-dark card-text">Product Management</b>
 
                 <a href="stock.php?type=simple" class="btn btn-admin float-right btn-sm mx-1">Print Stock</a>
-                <a href="stock.php?type=amount" class="btn btn-admin float-right btn-sm mx-1">Print Stock With Amount</a>
-
+                <!-- <a href="stock.php?type=amount" class="btn btn-admin float-right btn-sm mx-1">Print Stock With Amount</a> -->
                 <a href="product.php?act=add" class="btn btn-admin float-right btn-sm mx-1">Add New</a>
               </div>
             </div>
@@ -183,6 +182,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                     <?php if ($get_company['stock_manage'] == 1): ?>
                       <th>Quantity In Stock</th>
                     <?php endif; ?>
+                    <th>Sold Quantity</th>
                     <th class="d-print-none">Action</th>
                   </tr>
                 </thead>
@@ -213,6 +213,8 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                           <?php endif; ?>
                         </td>
                       <?php endif; ?>
+                    <td><?= $r['total_stock'] - $r['quantity_instock'] ?></td>
+
 
                       <td class="d-print-none">
                         <?php if (@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin"): ?>

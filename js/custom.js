@@ -84,6 +84,7 @@ $(document).ready(function () {
   $("#formData").on('submit', function (e) {
     e.preventDefault();
     var form = $('#formData');
+
     $.ajax({
       type: 'POST',
       url: form.attr('action'),
@@ -93,7 +94,6 @@ $(document).ready(function () {
         $('#formData_btn').prop("disabled", true);
       },
       success: function (response) {
-
         if (response.sts == "success") {
           $('#formData')[0].reset();
           $("#tableData").load(location.href + " #tableData > *");
@@ -106,6 +106,10 @@ $(document).ready(function () {
           icon: response.sts,
           timer: 1500,
           showConfirmButton: false
+        }).then(() => {
+          // Redirect to the current URL after the alert closes
+          window.location.href = window.location.href;
+          // Alternative: window.location.reload(); // Reloads the page, similar effect
         });
 
         $('#formData_btn').prop("disabled", false);
@@ -592,6 +596,7 @@ $("#get_product_name").on('change', function () {
         $("#get_product_price").val(response.current_rate);
         $("#get_product_price_wholesale").val(response.wholesale_rate);
         $("#get_product_quantity").attr("max", response.qty);
+        $("#get_product_quantity").val(1);
         $('#addProductPurchase').prop("disabled", response.qty <= 0);
         $("#get_purchase_price").val(response.purchase_rate);
       } else {
@@ -599,6 +604,7 @@ $("#get_product_name").on('change', function () {
         $("#get_product_price").val(response.purchase_rate);
         $("#get_purchase_price").val(response.purchase_rate);
         $('#get_sale_price').val(response.current_rate);
+        $("#get_product_quantity").val(1);
 
       }
     }
@@ -1064,7 +1070,7 @@ $(document).ready(function () {
     }
   });
 
-  
+
 });
 
 
@@ -1075,11 +1081,14 @@ function addbarcode_product(code, action_value) {
   $.ajax({
     url: 'php_action/custom_action.php',
     type: 'post',
-    data: {
-      getProductDetailsBycode: code
-    },
+    data: { getProductDetailsBycode: code },
     dataType: 'json',
     success: function (res) {
+      if (!res || $.isEmptyObject(res) || !res.product_id) {
+        sweeetalert("Product not found for barcode: " + code, "error", 2000);
+        return;
+      }
+
       // Choose price based on order type
       let display_rate = order_type === "wholesale" ? parseFloat(res.f_days) : parseFloat(res.current_rate);
 
@@ -1127,9 +1136,9 @@ function addbarcode_product(code, action_value) {
                   <td>${(display_rate * Currentquantity - res.purchase_rate * Currentquantity).toFixed(2)}</td>
                   <td>${(display_rate * Currentquantity).toFixed(2)}</td>
                   <td>
-                    <button type="button" onclick="addbarcode_product('${res.product_code}', 'plus')" class="btn btn-sm btn-success" title="Increase quantity">+ Add</button>
-                    <button type="button" onclick="addbarcode_product('${res.product_code}', 'minus')" class="btn btn-sm btn-warning" title="Decrease quantity">− Remove</button>
-                    <button type="button" onclick="removeByid('#product_idN_${res.product_id}')" class="btn btn-sm btn-danger" title="Remove product">🗑️ Delete</button>
+                    <button type="button" onclick="addbarcode_product('${res.product_code}', 'plus')" class="btn btn-sm btn-success">+ Add</button>
+                    <button type="button" onclick="addbarcode_product('${res.product_code}', 'minus')" class="btn btn-sm btn-warning">− Remove</button>
+                    <button type="button" onclick="removeByid('#product_idN_${res.product_id}')" class="btn btn-sm btn-danger">🗑️ Delete</button>
                   </td>
                 </tr>
               `);
@@ -1160,9 +1169,9 @@ function addbarcode_product(code, action_value) {
               <td>${(display_rate - res.purchase_rate).toFixed(2)}</td>
               <td>${display_rate}</td>
               <td>
-                <button type="button" onclick="addbarcode_product('${res.product_code}', 'plus')" class="btn btn-sm btn-success" title="Increase quantity">+ Add</button>
-                <button type="button" onclick="addbarcode_product('${res.product_code}', 'minus')" class="btn btn-sm btn-warning" title="Decrease quantity">− Remove</button>
-                <button type="button" onclick="removeByid('#product_idN_${res.product_id}')" class="btn btn-sm btn-danger" title="Remove product">🗑️ Delete</button>
+                <button type="button" onclick="addbarcode_product('${res.product_code}', 'plus')" class="btn btn-sm btn-success">+ Add</button>
+                <button type="button" onclick="addbarcode_product('${res.product_code}', 'minus')" class="btn btn-sm btn-warning">− Remove</button>
+                <button type="button" onclick="removeByid('#product_idN_${res.product_id}')" class="btn btn-sm btn-danger">🗑️ Delete</button>
               </td>
             </tr>
           `);
@@ -1171,9 +1180,13 @@ function addbarcode_product(code, action_value) {
       } else {
         sweeetalert("This product is out of stock", "error", 1500);
       }
+    },
+    error: function () {
+      sweeetalert("Error: Unable to fetch product details!", "error", 2000);
     }
   });
 }
+
 
 
 
@@ -1390,7 +1403,7 @@ function setCheckStatus(id) {
           }
         }
       });
-    } else {}
+    } else { }
   })
 
 }

@@ -1309,9 +1309,16 @@ if (isset($_REQUEST['cash_purchase_supplier'])) {
 
 					if ($get_company['stock_manage'] == 1) {
 
-						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float) $quantity_instock['quantity_instock'] + $product_quantites;
-						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+						$stock_row = mysqli_fetch_assoc(
+							mysqli_query($dbc, "SELECT quantity_instock, total_stock FROM product 
+                            WHERE product_id='" . $product_id . "' ")
+						);
+						$new_instock = (float) $stock_row['quantity_instock'] + $product_quantites;
+						$new_total = (float) $stock_row['total_stock'] + $product_quantites;
+						// update both quantity_instock and total_stock
+						$quantity_update = mysqli_query($dbc, "UPDATE product SET quantity_instock='$new_instock',total_stock='$new_total'
+                                                                              WHERE product_id='" . $product_id . "' 
+    													");
 					}
 
 
@@ -1385,9 +1392,10 @@ if (isset($_REQUEST['cash_purchase_supplier'])) {
 
 					while ($proR = mysqli_fetch_assoc($proQ)) {
 						$newqty = 0;
-						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-						$newqty = (float) $quantity_instock['quantity_instock'] - (float) $proR['quantity'];
-						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock,total_stock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
+						$new_instock = (float) $quantity_instock['quantity_instock'] - (float) $proR['quantity'];
+						$new_total = (float) $quantity_instock['total_stock'] - (float) $proR['quantity'];
+						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$new_instock',total_stock='$new_total' WHERE product_id='" . $proR['product_id'] . "' ");
 					}
 				}
 				deleteFromTable($dbc, "purchase_item", 'purchase_id', $_REQUEST['product_purchase_id']);
@@ -1414,9 +1422,10 @@ if (isset($_REQUEST['cash_purchase_supplier'])) {
 
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
-						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float) $quantity_instock['quantity_instock'] + $product_quantites;
-						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock,total_stock FROM  product WHERE product_id='" . $product_id . "' "));
+						$new_instock = (float) $quantity_instock['quantity_instock'] + $product_quantites;
+						$new_total = (float) $quantity_instock['total_stock'] + $product_quantites;
+						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$new_instock',total_stock='$new_total' WHERE product_id='" . $product_id . "' ");
 					}
 
 					$x++;

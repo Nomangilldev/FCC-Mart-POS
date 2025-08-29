@@ -11,7 +11,7 @@
         font-weight: bolder;
        }
      </style>
-<center><h5>Stock List <?=date('D,d-m-Y')?></h5></center>
+<center><h5 class="mt-5">Stock List <?=date('D,d-m-Y')?></h5></center>
 <?php if (isset($_REQUEST['category'])) {
     @$categoryFetched=fetchRecord($dbc,"categories","categories_id",$_REQUEST['category']);
   ?>
@@ -42,10 +42,10 @@
 // FROM product WHERE category_id='".$_REQUEST['category']."'
 // ORDER BY binray_not_needed_column ASC  ");
   if(@$_REQUEST['stock']=='0'){
-     $qbc = "SELECT * FROM product WHERE inventory=0 AND category_id = '".$_REQUEST['category']."' AND status = 1 AND quantity_instock >0 ORDER BY LENGTH(product_code) ASC, product_code ASC";
+     $qbc = "SELECT * FROM product WHERE category_id = '".$_REQUEST['category']."' AND status = 1 AND quantity_instock > 0 ORDER BY LENGTH(product_code) ASC, product_code ASC";
 
   }else{
-  $qbc = "SELECT * FROM product WHERE inventory=0 AND category_id = '".$_REQUEST['category']."' AND status = 1 ORDER BY LENGTH(product_code) ASC, product_code ASC";
+  $qbc = "SELECT * FROM product WHERE category_id = '".$_REQUEST['category']."' AND status = 1 ORDER BY LENGTH(product_code) ASC, product_code ASC";
 }
 //echo $qbc; 
   $query = mysqli_query($dbc,$qbc);
@@ -54,7 +54,7 @@
   //$query=mysqli_query($dbc,"SELECT product_name,category_id,product_code,quantity_instock,current_rate,f_days,t_days ,TRIM('".$categoryFetched['categories_name']."' FROM `product_code`) FROM product WHERE status=1 AND category_id='".$_REQUEST['category']."'  ");
 
  }else{
-  $query=mysqli_query($dbc,"SELECT * FROM product WHERE status=1 AND inventory=0 ORDER BY product_name ASC ");
+  $query=mysqli_query($dbc,"SELECT * FROM product WHERE status=1 ORDER BY product_name ASC ");
 }
     $c=0;
     //echo "SELECT product_name,category_id,product_code,quantity_instock ,TRIM('".$categoryFetched['categories_name']."' FROM `product_code`) FROM product WHERE status=1 AND category_id='".$_REQUEST['category']."'  ";
