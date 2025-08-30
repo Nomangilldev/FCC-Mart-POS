@@ -127,7 +127,7 @@ $q = mysqli_query($dbc, $sql);
                                 $c = 0;
                                 while ($r = mysqli_fetch_assoc($q)) {
                                     $c++;
-                                    ?>
+                                ?>
                                     <tr>
                                         <td><?= $r['return_id'] ?></td>
                                         <td><?= $r['original_order_id'] ?></td>

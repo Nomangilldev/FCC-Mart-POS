@@ -1082,7 +1082,9 @@ function addbarcode_product(code, action_value) {
   $.ajax({
     url: 'php_action/custom_action.php',
     type: 'post',
-    data: { getProductDetailsBycode: code },
+    data: {
+      getProductDetailsBycode: code
+    },
     dataType: 'json',
     success: function (res) {
       if (!res || $.isEmptyObject(res) || !res.product_id) {
@@ -1404,7 +1406,7 @@ function setCheckStatus(id) {
           }
         }
       });
-    } else { }
+    } else {}
   })
 
 }
