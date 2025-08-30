@@ -38,7 +38,6 @@ if (!empty($_REQUEST['bill_number'])) {
                             <a href="cash_salebarcode.php" class="btn btn-admin float-right btn-sm">Add New</a>
                         </div>
                     </div>
-
                 </div>
                 <div class="card-body">
                     <?php if ($alreadyReturned): ?>
@@ -46,7 +45,6 @@ if (!empty($_REQUEST['bill_number'])) {
                             ⚠️ This bill has already been returned.
                         </div>
                     <?php endif; ?>
-
                     <?php if ($notFound): ?>
                         <div class="alert alert-danger">
                             ❌ Bill number not found / Not in our sale List.
@@ -89,7 +87,7 @@ if (!empty($_REQUEST['bill_number'])) {
                                     placeholder="Return Date">
                             </div>
 
-                             <div class="col-sm-3">
+                            <div class="col-sm-3">
                                 <label>Customer Name</label>
                                 <input type="text"
                                     id="sale_order_client_name"
