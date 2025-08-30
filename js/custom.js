@@ -997,6 +997,7 @@ function getBalance(val, id) {
 //         addbarcode_product(barcode, 'plus');
 //         $(this).val(''); // Clear the input
 
+
 //         // Focus back after short delay
 //         setTimeout(() => {
 //           $("#barcode_product").focus();
