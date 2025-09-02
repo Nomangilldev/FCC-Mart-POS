@@ -138,10 +138,10 @@ function deleteFromTable($dbc, $table, $fld = "", $id)
 
     # code...
 
-    $msg =  "Deleted ....";
+    $msg = "Deleted ....";
 
     $sts = "warning";
-
+    return true;
     // redirect('index.php?nav='.$_REQUEST['nav'],1500);
 
   } else {
@@ -149,7 +149,9 @@ function deleteFromTable($dbc, $table, $fld = "", $id)
     $msg = mysqli_error($dbc);
 
     $sts = "danger";
+    return false;
   }
+
 }
 
 ?>

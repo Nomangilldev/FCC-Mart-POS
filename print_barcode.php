@@ -15,11 +15,13 @@ if (isset($_REQUEST['id'])) {
 
   // Output HTML
   echo "<div class='printtest'>
-          <div style='text-align: center;'>
-            <p style='margin: 0; font-weight: bold; font-size: 14px;'>" . htmlspecialchars(ucwords($fetchproduct['product_name'])) . "</p>
-            <div style='margin-top: 5px;'>$barcodeSVG</div>
-          </div>
-        </div>";
+        <div style='text-align: center;'>
+          <p style='margin: 0; font-weight: bold; font-size: 14px;'>" . htmlspecialchars(ucwords($fetchproduct['product_name'])) . "</p>
+          <div style='margin-top: 5px;'>$barcodeSVG</div>
+          <p style='margin: 0; font-size: 12px;'>" . htmlspecialchars($fetchproduct['product_code']) . "</p>
+        </div>
+      </div>";
+
 }
 ?>
 

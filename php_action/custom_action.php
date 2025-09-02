@@ -1330,7 +1330,7 @@ if (isset($_REQUEST['cash_purchase_supplier'])) {
 
 
 				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
-				if ($_REQUEST['payment_type'] == "credit_purchase"):
+				if ($_REQUEST['payment_type'] == "cash_purchase"):
 					if ($due_amount > 0) {
 						$debit = [
 							'debit' => $due_amount,
@@ -1441,7 +1441,7 @@ if (isset($_REQUEST['cash_purchase_supplier'])) {
 				@deleteFromTable($dbc, "transactions", 'transaction_id', $transactions['transaction_paid_id']);
 
 
-				if ($_REQUEST['payment_type'] == "credit_purchase"):
+				if ($_REQUEST['payment_type'] == "cash_purchase"):
 					if ($due_amount > 0) {
 						$debit = [
 							'debit' => $due_amount,

@@ -697,7 +697,7 @@ $end_of_month = date('Y-m-t', strtotime($current_date));
                           <span class="h3">
                             <?php
                             @$total_profit = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(customer_profit) as total_profit FROM orders where order_date='$current_date' "))['total_profit'];
-                           echo $total = isset($total_profit) ? number_format($total_profit, 2) : "0";
+                            echo $total = isset($total_profit) ? number_format($total_profit, 2) : "0";
 
                             ?>
                             <!-- <span class="small text-muted">-2%</span> -->
@@ -837,6 +837,32 @@ $end_of_month = date('Y-m-t', strtotime($current_date));
               </div>
               <div class="col-md-6">
                 <div class="card shadow eq-card mb-4">
+                  <div class="card-header d-flex justify-content-end">
+                    <div class="form-group mb-0">
+                      <select id="filter" class="form-control form-control-sm">
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="weekly">Last 7 Days</option>
+                        <option value="this_week">This Week</option>
+                        <option value="last_week">Last Week</option>
+                        <option value="this_month">This Month</option>
+                        <option value="last_month">Last Month</option>
+                        <option value="year">This Year</option>
+                        <option value="last_year">Last Year</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="card-body">
+                    <div class="chart-container">
+                      <canvas id="chart"></canvas>
+                    </div>
+                    <div id="chart-titles" style="text-align: center; margin-bottom: 10px; font-size: 16px;"></div>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="col-md-6">
+                <div class="card shadow eq-card mb-4">
                   <div class="card-body">
                     <div class="card-title">
                       <strong>Sale</strong>
@@ -885,7 +911,7 @@ $end_of_month = date('Y-m-t', strtotime($current_date));
                   </div>
 
                 </div>
-              </div>
+              </div> -->
               <!-- <div class="col-md-6">
                 <div class="card shadow mb-4">
                   <div class="card-header">
@@ -1431,6 +1457,124 @@ $end_of_month = date('Y-m-t', strtotime($current_date));
         console.log('Upload complete! We’ve uploaded these files:', result.successful)
       });
     }
+  </script>
+  <script>
+    $(function () {
+      let chart;
+
+      function loadData(filter) {
+        $.ajax({
+          url: 'php_action/get_lineChart_data.php',
+          type: 'GET',
+          data: { filter: filter },
+          dataType: 'json',
+          success: function (data) {
+            if (data.error) {
+              alert('Server error: ' + data.error);
+              return;
+            }
+
+            console.log('Data received:', data);
+            if (chart) chart.destroy();
+
+            const ctx = document.getElementById('chart');
+            if (!ctx) {
+              console.error('Canvas element #chart not found');
+              return;
+            }
+
+            // Determine x-axis title based on filter
+            let xAxisTitle = 'Time'; // Default title
+            let maxTicksLimit = 10; // Default tick limit
+            if (filter === 'today' || filter === 'yesterday') {
+              xAxisTitle = 'Hours';
+              // console.log(xAxisTitle);
+              maxTicksLimit = 12;
+            } else if (filter === 'weekly' || filter === 'this_week' || filter === 'last_week') {
+              xAxisTitle = 'Days';
+            } else if (filter === 'this_month' || filter === 'last_month') {
+              xAxisTitle = 'Date';
+              maxTicksLimit = 15;
+            } else if (filter === 'year' || filter === 'last_year') {
+              xAxisTitle = 'Months';
+            }
+
+            // Update titles in the div
+            const titlesDiv = document.getElementById('chart-titles');
+            if (titlesDiv) {
+              titlesDiv.innerHTML = `${xAxisTitle}`;
+            } else {
+              console.error('Titles div #chart-titles not found');
+            }
+
+            chart = new Chart(ctx.getContext('2d'), {
+              type: 'line',
+              data: {
+                labels: data.labels,
+                datasets: [{
+                  label: 'Sales',
+                  data: data.sales,
+                  borderColor: '#0000FF',
+                  backgroundColor: '#0000FF80',
+                  fill: false,
+                  pointRadius: 4,
+                  pointHoverRadius: 6
+                }, {
+                  label: 'Purchases',
+                  data: data.purchases,
+                  borderColor: '#FF0000',
+                  backgroundColor: '#FF000080',
+                  fill: false,
+                  pointRadius: 4,
+                  pointHoverRadius: 6
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    type: 'category',
+                    ticks: {
+                      maxTicksLimit: maxTicksLimit,
+                      font: { size: 12 }
+                    }
+                  },
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      font: { size: 12 }
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    display: true
+                  },
+                  tooltip: {
+                    callbacks: {
+                      title: function (tooltipItems) {
+                        return tooltipItems[0].label;
+                      }
+                    }
+                  }
+                }
+              }
+            });
+          },
+          error: function (xhr, status, error) {
+            console.error('AJAX error:', xhr.responseText, status, error);
+            alert('Error loading data: ' + (xhr.responseText || 'Unknown error'));
+          }
+        });
+      }
+
+      $('#filter').change(function () {
+        loadData($(this).val());
+      });
+
+      loadData('today');
+    });
   </script>
   <script src="js/apps.js"></script>
 </body>
