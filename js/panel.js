@@ -162,52 +162,33 @@ function resetForm(id) {
 
 function deleteAlert(id, table, row, reload_type) {
   Swal.fire({
-    title: 'Are you sure?',
+    title: "Are you sure?",
     text: "You won't be able to revert this!",
-    icon: 'warning',
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
   }).then((result) => {
     if (result.isConfirmed) {
-
       $.ajax({
-        url: 'php_action/ajax_deleteData.php',
-        type: 'post',
-        data: {
-          delete_bymanually: id,
-          table: table,
-          row: row
-        },
-        dataType: 'json',
+        url: "php_action/ajax_deleteData.php",
+        type: "post",
+        data: { delete_bymanually: id, table: table, row: row },
+        dataType: "json",
         success: function (response) {
           //console.log(response);
           if (response.sts == "success") {
-            if (reload_type != "pg") {
-              $("#" + reload_type).load(location.href + " #" + reload_type + " > *");
-            } else {
+            
+            Swal.fire("Deleted!", response.msg, response.sts).then(() => {
               location.reload();
-            }
+            });
           }
-
-          Swal.fire(
-            'Deleted!',
-            response.msg,
-            response.sts,
-          )
-
-
-        }
-
-
-      }); //ajax 
-      console.log("Deleted");
-
+        },
+      });
     }
-  })
+  });
 }
-
 function reload_page() {
   location.reload();
 }

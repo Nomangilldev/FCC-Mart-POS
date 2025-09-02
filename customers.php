@@ -86,13 +86,13 @@ if (@$getCustomer) {
 
 
 											<label for="active">Status:</label>
-											<select name="customer_status" required class="form-control ">
-												<option <?= @($Getdata['customer_status'] == 1) ? "selected" : "" ?>
-													value="1">
-													Active</option>
-												<option <?= @($Getdata['customer_status'] == 0) ? "selected" : "" ?>
-													value="0">
-													Deactive</option>
+											<select name="customer_status" required class="form-control">
+												<option <?= (!isset($Getdata['customer_status']) || $Getdata['customer_status'] == 1) ? "selected" : "" ?> value="1">
+													Active
+												</option>
+												<option <?= (isset($Getdata['customer_status']) && $Getdata['customer_status'] == 0) ? "selected" : "" ?> value="0">
+													Deactive
+												</option>
 											</select>
 
 										</div>

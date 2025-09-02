@@ -37,7 +37,8 @@ $btn_name = isset($_REQUEST['edit_categories_id']) ? "Update" : "Add";
                   <label for="categories_name">Category</label>
 
                   <input autocomplete="off" type="text" class="form-control"
-                    value="<?= @$categories['categories_name'] ?>" id="categories_name" name="add_category_name" placeholder="Category Name">
+                    value="<?= @$categories['categories_name'] ?>" id="categories_name" name="add_category_name"
+                    placeholder="Category Name">
                   <input type="hidden" value="<?= @$categories['categories_id'] ?>" id="categories_id"
                     name="categories_id">
                 </div>
@@ -46,8 +47,8 @@ $btn_name = isset($_REQUEST['edit_categories_id']) ? "Update" : "Add";
                 <div class="form-group col-md-5 col-12">
                   <label for="categories_status">Status</label>
                   <select class="form-control" id="categories_status" name="categories_status">
-                    <option <?= @($categories['categories_status'] == 1) ? "selected" : "selected" ?> value="1">Active</option>
-                    <option <?= @($categories['categories_status'] == 0) ? "selected" : "" ?> value="0">Inactive</option>
+                    <option <?= (!isset($categories['categories_status']) || $categories['categories_status'] == 1) ? "selected" : "" ?> value="1">Active</option>
+                    <option <?= (isset($categories['categories_status']) && $categories['categories_status'] == 0) ? "selected" : "" ?> value="0">Inactive</option>
                   </select>
                 </div>
 

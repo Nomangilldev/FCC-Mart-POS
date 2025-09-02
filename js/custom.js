@@ -128,6 +128,7 @@ $(document).ready(function () {
     });
   });
 
+
   $("#formData1").on('submit', function (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -935,7 +936,10 @@ function getRemaingAmount() {
 
   // Absolute value to avoid negative display
   $('#remaining_ammount').val(Math.abs(total).toFixed(2));
-  $('#paid_ammount').attr('min', product_grand_total_amount);
+  if ($("#payment_type").val() === "cash_in_hand") {
+    $('#paid_ammount').attr('min', product_grand_total_amount);
+  }
+
 }
 
 function editByid(id, code, price, qty) {
@@ -1406,7 +1410,7 @@ function setCheckStatus(id) {
           }
         }
       });
-    } else {}
+    } else { }
   })
 
 }

@@ -28,42 +28,42 @@ $btn_name = isset($_REQUEST['edit_brand_id']) ? "Update" : "Add";
 
           </div>
           <div class="card-body">
-    <form action="php_action/panel.php" method="POST" role="form" id="formData">
-        <div class="msg"></div>
+            <form action="php_action/panel.php" method="POST" role="form" id="formData">
+              <div class="msg"></div>
 
-        <div class="form-row align-items-end">
-            <!-- Brand Name -->
-            <div class="form-group col-md-5 col-12">
-                <label for="add_brand_name">Brand</label>
-                <input type="text" autocomplete="off" class="form-control" 
-                       value="<?=@$brands['brand_name']?>" 
-                       id="add_brand_name" name="add_brand_name" placeholder="Brand Name"> 
-                <input type="hidden" value="<?=@$brands['brand_id']?>" 
-                       id="brand_id" name="brand_id">
-            </div>
+              <div class="form-row align-items-end">
+                <!-- Brand Name -->
+                <div class="form-group col-md-5 col-12">
+                  <label for="add_brand_name">Brand</label>
+                  <input type="text" autocomplete="off" class="form-control" value="<?= @$brands['brand_name'] ?>"
+                    id="add_brand_name" name="add_brand_name" placeholder="Brand Name">
+                  <input type="hidden" value="<?= @$brands['brand_id'] ?>" id="brand_id" name="brand_id">
+                </div>
 
-            <!-- Brand Status -->
-            <div class="form-group col-md-5 col-12">
-                <label for="brand_status">Brand Status</label>
-                <select class="form-control" id="brand_status" name="brand_status"> 
-                    <option <?=@($brands['brand_status']==1)?"selected":"selected"?> value="1">Active</option>
-                    <option <?=@($brands['brand_status']==0)?"selected":""?> value="0">Inactive</option>
-                </select>
-            </div>
+                <!-- Brand Status -->
+                <div class="form-group col-md-5 col-12">
+                  <label for="brand_status">Brand Status</label>
+                  <select class="form-control" id="brand_status" name="brand_status">
+                    <option <?= isset($brands['brand_status']) && $brands['brand_status'] == 1 ? "selected" : "" ?>
+                      value="1">Active</option>
+                    <option <?= isset($brands['brand_status']) && $brands['brand_status'] == 0 ? "selected" : "" ?>
+                      value="0">Inactive</option>
+                  </select>
+                </div>
 
-            <!-- Action Button -->
-            <div class="form-group col-md-2 col-12 text-center">
-                <?php if (@$userPrivileges['nav_edit']==1 || ($fetchedUserRole=="admin" AND isset($_REQUEST['edit_brand_id']))): ?>
+                <!-- Action Button -->
+                <div class="form-group col-md-2 col-12 text-center">
+                  <?php if (@$userPrivileges['nav_edit'] == 1 || ($fetchedUserRole == "admin" and isset($_REQUEST['edit_brand_id']))): ?>
                     <button type="submit" class="btn btn-admin2" id="formData_btn">Update</button>
-                <?php endif ?>
-                
-                <?php if (@$userPrivileges['nav_add']==1 || ($fetchedUserRole=="admin" AND !isset($_REQUEST['edit_brand_id']))): ?>
+                  <?php endif ?>
+
+                  <?php if (@$userPrivileges['nav_add'] == 1 || ($fetchedUserRole == "admin" and !isset($_REQUEST['edit_brand_id']))): ?>
                     <button type="submit" class="btn btn-admin" id="formData_btn">Add</button>
-                <?php endif ?>
-            </div>
-        </div>
-    </form>
-</div>
+                  <?php endif ?>
+                </div>
+              </div>
+            </form>
+          </div>
 
 
         </div> <!-- .row -->
