@@ -66,12 +66,17 @@ $start = mysqli_real_escape_string($dbc, $start);
 $end = mysqli_real_escape_string($dbc, $end);
 
 // Fetch sales and purchases
+$user_role = $_SESSION['user_role'];
+$user_id = $_SESSION['user_id']; // Logged-in user's ID
+
+$where_clause = ($user_role === 'admin') ? '' : " AND user_id = '$user_id'";
+
 if ($agg === 'hourly') {
     $sales_query = mysqli_query($dbc, "
         SELECT DATE_FORMAT(timestamp, '%H:00') AS key_date,
                SUM(grand_total) AS total
         FROM orders
-        WHERE DATE(timestamp) = '$start'
+        WHERE DATE(timestamp) = '$start' $where_clause
         GROUP BY key_date
         ORDER BY key_date
     ");
@@ -79,7 +84,7 @@ if ($agg === 'hourly') {
         SELECT DATE_FORMAT(timestamp, '%H:00') AS key_date,
                SUM(grand_total) AS total
         FROM purchase
-        WHERE DATE(timestamp) = '$start'
+        WHERE DATE(timestamp) = '$start' $where_clause
         GROUP BY key_date
         ORDER BY key_date
     ");
@@ -88,7 +93,7 @@ if ($agg === 'hourly') {
         SELECT DATE(order_date) AS key_date,
                SUM(grand_total) AS total
         FROM orders
-        WHERE DATE(order_date) BETWEEN '$start' AND '$end'
+        WHERE DATE(order_date) BETWEEN '$start' AND '$end' $where_clause
         GROUP BY key_date
         ORDER BY key_date
     ");
@@ -96,7 +101,7 @@ if ($agg === 'hourly') {
         SELECT DATE(purchase_date) AS key_date,
                SUM(grand_total) AS total
         FROM purchase
-        WHERE DATE(purchase_date) BETWEEN '$start' AND '$end'
+        WHERE DATE(purchase_date) BETWEEN '$start' AND '$end' $where_clause
         GROUP BY key_date
         ORDER BY key_date
     ");
@@ -109,7 +114,7 @@ if ($agg === 'hourly') {
             SELECT DATE_FORMAT(order_date, '%Y-%m') AS key_date,
                    SUM(grand_total) AS total
             FROM orders
-            WHERE DATE(order_date) BETWEEN '$start' AND '$end'
+            WHERE DATE(order_date) BETWEEN '$start' AND '$end' $where_clause
             GROUP BY key_date
             ORDER BY key_date
         ");
@@ -117,7 +122,7 @@ if ($agg === 'hourly') {
             SELECT DATE_FORMAT(purchase_date, '%Y-%m') AS key_date,
                    SUM(grand_total) AS total
             FROM purchase
-            WHERE DATE(purchase_date) BETWEEN '$start' AND '$end'
+            WHERE DATE(purchase_date) BETWEEN '$start' AND '$end' $where_clause
             GROUP BY key_date
             ORDER BY key_date
         ");
@@ -127,7 +132,7 @@ if ($agg === 'hourly') {
             SELECT DATE(order_date) AS key_date,
                    SUM(grand_total) AS total
             FROM orders
-            WHERE DATE(order_date) BETWEEN '$start' AND '$end'
+            WHERE DATE(order_date) BETWEEN '$start' AND '$end' $where_clause
             GROUP BY key_date
             ORDER BY key_date
         ");
@@ -135,7 +140,7 @@ if ($agg === 'hourly') {
             SELECT DATE(purchase_date) AS key_date,
                    SUM(grand_total) AS total
             FROM purchase
-            WHERE DATE(purchase_date) BETWEEN '$start' AND '$end'
+            WHERE DATE(purchase_date) BETWEEN '$start' AND '$end' $where_clause
             GROUP BY key_date
             ORDER BY key_date
         ");
@@ -183,7 +188,7 @@ if ($agg === 'hourly') {
     $interval = new DateInterval('P1D');
     $date_range = new DatePeriod($start_date, $interval, $end_date->modify('+1 day'));
     foreach ($date_range as $date) {
-        $day_index = (int)$date->format('N') - 1; // 1 (Mon) to 7 (Sun) -> 0 to 6
+        $day_index = (int) $date->format('N') - 1; // 1 (Mon) to 7 (Sun) -> 0 to 6
         $date_key = $date->format('Y-m-d');
         $labels[] = $days[$day_index];
         $sales[] = $sales_data[$date_key] ?? 0;
